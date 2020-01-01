@@ -1,12 +1,13 @@
 # Summary
 
-- Creating virtual network over existing physical network
-- Using OpenVPN with TUN and shared security key
+- Creating virtual private network
+- Using OpenVPN with TUN and shared secret key
 
 # Network diagram
 
 - OpenVPN runs on A1 and B1 and makes vpn over net1
-- A1 (B1) is the default gateway on net2 (net3)
+- A1 is the default gateway on net2
+- B1 is the default gateway on net3
 - A2 can talk to B2 with openvpn, and vice versa
 
 <pre>
@@ -26,6 +27,11 @@
 </pre>
 
 # Test
+
+- macOS Catalina 10.15.2
+- VirtualBox 6.0.14
+- Vagrant 2.2.6
+- Vagrant box ubuntu/xenial64 (virtualbox, 20191217.0.0)
 
 ```
 daisuke@daisukenoMac-mini OpenVPN % vagrant ssh b2
@@ -58,7 +64,7 @@ daisuke@daisukenoMac-mini OpenVPN %
 
 # Issues/Notes
 
-- It takes a lot of time when "vagrant halt" on A1 and B1. Maybe openvpn processes are preventing from shutdown.
+- \[Resolved] ~~It takes a lot of time when "vagrant halt" on A1 and B1. Maybe openvpn processes are preventing from shutdown.~~
 - I learned that Ubuntu works with 256MB memory.
 
 # References
