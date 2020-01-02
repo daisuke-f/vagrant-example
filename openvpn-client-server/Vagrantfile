@@ -1,0 +1,110 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+Vagrant.configure('2') do |config|
+  config.vm.box = 'ubuntu/xenial64'
+
+  config.vm.provider 'virtualbox' do |vb|
+    vb.memory = '256'
+  end
+
+  config.vm.provision 'shell', inline: 'chmod -x /etc/update-motd.d/*'
+ 
+  config.vm.define 'a1' do |cfg|
+    cfg.vm.hostname = 'a1'
+    cfg.vm.network 'private_network', ip: '192.168.1.101', virtualbox__intnet: 'net1'
+    cfg.vm.network 'private_network', ip: '192.168.2.101', virtualbox__intnet: 'net2'
+
+    # network settings
+    cfg.vm.provision 'shell', inline: <<-SHELL
+      cat /vagrant/hosts.txt >>/etc/hosts
+
+      echo net.ipv4.ip_forward=1 >>/etc/sysctl.conf
+      sysctl -p
+    SHELL
+
+    # prepare pki assets
+    cfg.vm.provision 'shell', inline: <<-SHELL
+      mkdir /vagrant/pki
+      pushd /vagrant/pki
+      sh /vagrant/pki.sh
+      popd
+    SHELL
+
+    # run OpenVPN server
+    cfg.vm.provision 'shell', inline: <<-SHELL
+
+      apt install -y openvpn
+
+      cp /vagrant/server.conf \
+         /vagrant/pki/demoCA/cacert.pem \
+         /vagrant/pki/dh1024.pem \
+         /vagrant/pki/server-cert.pem \
+         /vagrant/pki/server-key.pem /etc/openvpn
+      
+      echo a1-pass >/etc/openvpn/server-pass.txt
+
+      systemctl enable openvpn@server
+
+      systemctl start openvpn@server
+    SHELL
+  end
+
+  config.vm.define 'b1' do |cfg|
+    cfg.vm.hostname = 'b1'
+    cfg.vm.network 'private_network', ip: '192.168.1.102', virtualbox__intnet: 'net1'
+    cfg.vm.network 'private_network', ip: '192.168.3.101', virtualbox__intnet: 'net3'
+
+    # network settings
+    cfg.vm.provision 'shell', inline: <<-SHELL
+      cat /vagrant/hosts.txt >>/etc/hosts
+
+      echo net.ipv4.ip_forward=1 >>/etc/sysctl.conf
+      sysctl -p
+    SHELL
+
+    # run OpenVPN client
+    cfg.vm.provision 'shell', inline: <<-SHELL
+
+      apt install -y openvpn
+
+      cp /vagrant/client.conf \
+         /vagrant/pki/demoCA/cacert.pem \
+         /vagrant/pki/client-cert.pem \
+         /vagrant/pki/client-key.pem /etc/openvpn
+      
+      echo b1-pass >/etc/openvpn/client-pass.txt
+
+      systemctl enable openvpn@client
+
+      systemctl start openvpn@client
+    SHELL
+  end
+
+  config.vm.define 'a2' do |cfg|
+    cfg.vm.hostname = 'a2'
+    cfg.vm.network 'private_network', ip: '192.168.2.102', virtualbox__intnet: 'net2'
+
+    # network settings
+    cfg.vm.provision 'shell', inline: <<-SHELL
+      cat /vagrant/hosts.txt >>/etc/hosts
+    SHELL
+
+    cfg.vm.provision 'shell', run: 'always', inline: <<-SHELL
+      route add default gw 192.168.2.101
+    SHELL
+  end
+
+  config.vm.define 'b2' do |cfg|
+    cfg.vm.hostname = 'b2'
+    cfg.vm.network 'private_network', ip: '192.168.3.102', virtualbox__intnet: 'net3'
+
+    # network settings
+    cfg.vm.provision 'shell', inline: <<-SHELL
+      cat /vagrant/hosts.txt >>/etc/hosts
+    SHELL
+
+    cfg.vm.provision 'shell', run: 'always', inline: <<-SHELL
+      route add default gw 192.168.3.101
+    SHELL
+  end
+end
