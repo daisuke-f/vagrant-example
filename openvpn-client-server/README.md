@@ -158,7 +158,7 @@ vagrant@a2:~$
 # Issues/Notes
 
 - Currently this VPN is unreliable. Ping packets are partially lost or completely unreachable in some cases.
-- After doing "vagrant reload --provision", unnecessary lines are appended to /etc/hosts and /etc/sysctl.conf.
+- After doing "vagrant reload --provision", unnecessary lines are appended to /etc/hosts ~~and /etc/sysctl.conf~~.
 - During provisioning, lot of messages are outputted by openssl and few are useful.
 
 # References
