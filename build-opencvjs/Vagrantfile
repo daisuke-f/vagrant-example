@@ -1,0 +1,29 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/xenial64"
+
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    sudo apt-get update
+    sudo apt-get install -y cmake python g++
+
+    if [ ! -d emsdk ]; then
+      git clone https://github.com/emscripten-core/emsdk.git
+    fi
+    pushd emsdk
+    if [ ! -d upstream ]; then
+      ./emsdk install latest-upstream
+      ./emsdk activate latest-upstream
+    fi
+    source ./emsdk_env.sh
+    popd
+
+    if [ ! -d opencv ]; then
+      git clone https://github.com/opencv/opencv.git
+    fi
+    pushd opencv
+    python ./platforms/js/build_js.py build_js --emscripten_dir ~/emsdk/upstream/emscripten
+    popd
+  SHELL
+end
