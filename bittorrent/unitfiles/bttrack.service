@@ -1,0 +1,10 @@
+[Unit]
+Description=BitTorrent tracker
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/bttrack --port 6969 --dfile /tmp/bttrack/dstate
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

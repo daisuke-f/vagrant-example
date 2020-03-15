@@ -1,0 +1,11 @@
+[Unit]
+Description=BitTorrent web site
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -m http.server
+ExecReload=/bin/kill -HUP $MAINPID
+WorkingDirectory=/vagrant/indexes
+
+[Install]
+WantedBy=multi-user.target
