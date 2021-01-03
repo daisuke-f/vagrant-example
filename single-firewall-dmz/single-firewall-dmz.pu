@@ -1,0 +1,18 @@
+@startuml single-firewall-dmz
+nwdiag {
+    external [ shape = "cloud" ];
+    external -- firewall1;
+
+    network dmz {
+        address = "192.168.1.0/24";
+        firewall1 [ address = "192.168.1.101" ];
+        proxy1 [ address = "192.168.1.102" ];  
+        web1 [ address = "192.168.1.103" ];
+    }
+    network internal {
+        address = "192.168.2.0/24";
+        firewall1 [ address = "192.168.2.101" ];
+        node1 [ address = "192.168.2.102" ];
+    }
+}
+@enduml
