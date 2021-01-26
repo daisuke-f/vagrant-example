@@ -1,0 +1,9 @@
+@startuml zabbix4
+nwdiag {
+    network private_network {
+        address = "192.168.101.0/24";
+        server_01 [ address = "192.168.101.11", description = "server-01\n\n* Zabbix Server\n* Zabbix Agent" ];
+        agent_01 [ address = "192.168.101.21", description = "agent-01\n\n* Zabbix Agent" ];  
+    }
+}
+@enduml
